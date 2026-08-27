@@ -32,6 +32,10 @@ async fn main() {
 
     let config = Config::from_env();
 
+    // =========================
+    // Database
+    // =========================
+
     let db = PgPoolOptions::new()
         .max_connections(10)
         .connect(&config.database_url)
@@ -49,24 +53,25 @@ async fn main() {
     // CORS
     // =========================
 
-  let cors = CorsLayer::new()
-    .allow_origin(
-        "http://localhost:3000"
-            .parse::<HeaderValue>()
-            .unwrap(),
-    )
-    .allow_credentials(true)
-    .allow_methods([
-        Method::GET,
-        Method::POST,
-        Method::PUT,
-        Method::DELETE,
-        Method::OPTIONS,
-    ])
-    .allow_headers([
-        axum::http::header::CONTENT_TYPE,
-        axum::http::header::AUTHORIZATION,
-    ]);
+    let cors = CorsLayer::new()
+        .allow_origin(
+            "http://localhost:3000"
+                .parse::<HeaderValue>()
+                .unwrap(),
+        )
+        .allow_credentials(true)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
+        .allow_headers([
+            axum::http::header::CONTENT_TYPE,
+            axum::http::header::AUTHORIZATION,
+        ]);
 
     // =========================
     // Public routes
@@ -98,11 +103,20 @@ async fn main() {
         .layer(cors)
         .with_state(state);
 
-    let listener = TcpListener::bind("0.0.0.0:8080")
-        .await
-        .expect("Failed to bind to port 8080");
+    // =========================
+    // Server
+    // =========================
 
-    println!("Welth backend running on http://localhost:8080");
+    let port = std::env::var("PORT")
+        .unwrap_or_else(|_| "8080".to_string());
+
+    let address = format!("0.0.0.0:{}", port);
+
+    let listener = TcpListener::bind(&address)
+        .await
+        .expect("Failed to bind to server port");
+
+    println!("Welth backend running on http://{}", address);
 
     axum::serve(listener, app)
         .await
