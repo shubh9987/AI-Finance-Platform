@@ -4,6 +4,7 @@ use std::env;
 pub struct Config {
     pub database_url: String,
     pub jwt_secret: String,
+    pub frontend_url: String,
 }
 
 impl Config {
@@ -14,6 +15,10 @@ impl Config {
 
             jwt_secret: env::var("JWT_SECRET")
                 .expect("JWT_SECRET must be set"),
+
+            frontend_url: env::var("FRONTEND_URL")
+                .unwrap_or_else(|_| "http://localhost:3000".to_string()),
         }
     }
 }
+

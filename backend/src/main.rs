@@ -49,29 +49,30 @@ async fn main() {
         config: config.clone(),
     };
 
-    // =========================
-    // CORS
-    // =========================
+   // =========================
+// CORS
+// =========================
 
-    let cors = CorsLayer::new()
-        .allow_origin(
-            "http://localhost:3000"
-                .parse::<HeaderValue>()
-                .unwrap(),
-        )
-        .allow_credentials(true)
-        .allow_methods([
-            Method::GET,
-            Method::POST,
-            Method::PUT,
-            Method::PATCH,
-            Method::DELETE,
-            Method::OPTIONS,
-        ])
-        .allow_headers([
-            axum::http::header::CONTENT_TYPE,
-            axum::http::header::AUTHORIZATION,
-        ]);
+let frontend_url = config
+    .frontend_url
+    .parse::<HeaderValue>()
+    .expect("Invalid FRONTEND_URL");
+
+let cors = CorsLayer::new()
+    .allow_origin(frontend_url)
+    .allow_credentials(true)
+    .allow_methods([
+        Method::GET,
+        Method::POST,
+        Method::PUT,
+        Method::PATCH,
+        Method::DELETE,
+        Method::OPTIONS,
+    ])
+    .allow_headers([
+        axum::http::header::CONTENT_TYPE,
+        axum::http::header::AUTHORIZATION,
+    ]);
 
     // =========================
     // Public routes
